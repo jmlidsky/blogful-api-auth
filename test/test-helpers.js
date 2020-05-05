@@ -127,7 +127,7 @@ function makeCommentsArray(users, articles) {
   ];
 }
 
-function makeExpectedArticle(users, article, comments=[]) {
+function makeExpectedArticle(users, article, comments = []) {
   const author = users
     .find(user => user.id === article.author_id)
 
@@ -211,20 +211,20 @@ function cleanTables(db) {
         blogful_comments
       `
     )
-    .then(() =>
-      Promise.all([
-        trx.raw(`ALTER SEQUENCE blogful_articles_id_seq minvalue 0 START WITH 1`),
-        trx.raw(`ALTER SEQUENCE blogful_users_id_seq minvalue 0 START WITH 1`),
-        trx.raw(`ALTER SEQUENCE blogful_comments_id_seq minvalue 0 START WITH 1`),
-        trx.raw(`SELECT setval('blogful_articles_id_seq', 0)`),
-        trx.raw(`SELECT setval('blogful_users_id_seq', 0)`),
-        trx.raw(`SELECT setval('blogful_comments_id_seq', 0)`),
-      ])
-    )
+      .then(() =>
+        Promise.all([
+          trx.raw(`ALTER SEQUENCE blogful_articles_id_seq minvalue 0 START WITH 1`),
+          trx.raw(`ALTER SEQUENCE blogful_users_id_seq minvalue 0 START WITH 1`),
+          trx.raw(`ALTER SEQUENCE blogful_comments_id_seq minvalue 0 START WITH 1`),
+          trx.raw(`SELECT setval('blogful_articles_id_seq', 0)`),
+          trx.raw(`SELECT setval('blogful_users_id_seq', 0)`),
+          trx.raw(`SELECT setval('blogful_comments_id_seq', 0)`),
+        ])
+      )
   )
 }
 
-function seedArticlesTables(db, users, articles, comments=[]) {
+function seedArticlesTables(db, users, articles, comments = []) {
   // use a transaction to group the queries and auto rollback on any failure
   return db.transaction(async trx => {
     await trx.into('blogful_users').insert(users)
@@ -262,6 +262,11 @@ function seedMaliciousArticle(db, user, article) {
     )
 }
 
+function makeAuthHeader(user) {
+  const token = Buffer.from(`${user.user_name}:${user.password}`).toString('base64')
+  return `Basic ${token}`
+}
+
 module.exports = {
   makeUsersArray,
   makeArticlesArray,
@@ -274,4 +279,5 @@ module.exports = {
   cleanTables,
   seedArticlesTables,
   seedMaliciousArticle,
+  makeAuthHeader,
 }
