@@ -4,18 +4,17 @@ const config = require('../config')
 
 const AuthService = {
   getUserWithUserName(db, user_name) {
-    console.log(user_name)
     return db('blogful_users')
       .where({ user_name })
       .first()
   },
   comparePasswords(password, hash) {
-    console.log(password, hash)
     return bcrypt.compare(password, hash)
   },
   createJwt(subject, payload) {
     return jwt.sign(payload, config.JWT_SECRET, {
       subject,
+      expiresIn: config.JWT_EXPIRY,
       algorithm: 'HS256',
     })
   },
